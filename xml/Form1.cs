@@ -26,14 +26,14 @@ namespace xml
                 txtruta.Text = openFileDialog1.FileName;
             }
         }
+        DataTable tablita;
         private void btncargar_Click(object sender, EventArgs e)
         {
-            DataTable tablita = new DataTable();
-            tablita.Columns.Add("Denominación Moneda");
-            tablita.Columns.Add("Nombre Moneda");
+            tablita = new DataTable();
+            tablita.Columns.Add("DenominaciónMoneda");
+            tablita.Columns.Add("NombreMoneda");
             XmlDocument listado = new XmlDocument();
             listado.Load(txtruta.Text);
-
             XmlNodeList elementos = listado.SelectNodes("moneda");
             foreach (XmlNode item in listado.ChildNodes)
             {
@@ -42,18 +42,49 @@ namespace xml
                     DataRow filita = tablita.NewRow();
                     if (items.Name != "moneda")
                     {
-                        filita["Denominación Moneda"] = items.Attributes["value"].Value;
-                        filita["Nombre Moneda"] = items.InnerText;
+                        filita["DenominaciónMoneda"] = items.Attributes["value"].Value;
+                        filita["NombreMoneda"] = items.InnerText;
                         tablita.Rows.Add(filita);
                     }
                 }
             }
             dtgconten.DataSource = tablita;
         }
-
         private void frmxml_Load(object sender, EventArgs e)
         {
             txtruta.Text = Application.StartupPath + @"\Xmls\MONEDA PAISES.xml";
+
+        }
+
+        private void bntnbuscar_Click(object sender, EventArgs e)
+        {
+            if (tablita != null)
+            {
+                string expresion = $"DenominaciónMoneda='{txtbuscar.Text}'";
+                DataView ta = new DataView(tablita);
+                ta.Sort = "DenominaciónMoneda asc";
+                ta.RowFilter = expresion;
+                DataRow[] FILITAS = tablita.Select(expresion);
+                if (FILITAS.Length > 0)
+                {
+                    dtgconten.DataSource = FILITAS.CopyToDataTable(); ;
+                }
+                else
+                {
+                    expresion = $"NombreMoneda like '%{txtbuscar.Text}%'";
+                    ta = new DataView(tablita);
+                    ta.Sort = "DenominaciónMoneda asc";
+                    ta.RowFilter = expresion;
+                    FILITAS = tablita.Select(expresion);
+                    if (FILITAS.Length > 0)
+                    {
+                        dtgconten.DataSource = FILITAS.CopyToDataTable(); ;
+                    }
+                    else
+                        dtgconten.DataSource = tablita;
+
+                }
+            }
         }
     }
 }
