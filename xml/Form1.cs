@@ -22,9 +22,7 @@ namespace xml
         {
             openFileDialog1.Filter = "Archivos xml|*.xml";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
                 txtruta.Text = openFileDialog1.FileName;
-            }
         }
         DataTable tablita;
         private void btncargar_Click(object sender, EventArgs e)
@@ -34,28 +32,38 @@ namespace xml
             tablita.Columns.Add("NombreMoneda");
             XmlDocument listado = new XmlDocument();
             listado.Load(txtruta.Text);
-            XmlNodeList elementos = listado.SelectNodes("moneda");
+            listado.SelectNodes("moneda");
+
+            //XmlNamespaceManager nsmgr = new XmlNamespaceManager(listado.NameTable);
+            //nsmgr.AddNamespace("ext", "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2");
+            //nsmgr.AddNamespace("sac", "urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1");
+            //nsmgr.AddNamespace("ds", "http://www.w3.org/2000/09/xmldsig#");
+
+            //XmlNodeList listita = listado.SelectNodes("//ds:X509Certificate", nsmgr);
+            //foreach (XmlNode item in listita)
+            //{
+            //    item.InnerText = "pero y que dice";
+            //}
+            //listado.Save(txtruta.Text);
+
             foreach (XmlNode item in listado.ChildNodes)
-            {
                 foreach (XmlNode items in item)
                 {
                     DataRow filita = tablita.NewRow();
                     if (items.Name != "moneda")
-                    {
-                        filita["DenominaciónMoneda"] = items.Attributes["value"].Value;
-                        filita["NombreMoneda"] = items.InnerText;
-                        tablita.Rows.Add(filita);
-                    }
+                        if (items.Attributes["value"] != null)
+                        {
+                            filita["DenominaciónMoneda"] = items.Attributes["value"].Value;
+                            filita["NombreMoneda"] = items.InnerText;
+                            tablita.Rows.Add(filita);
+                        }
                 }
-            }
             dtgconten.DataSource = tablita;
         }
         private void frmxml_Load(object sender, EventArgs e)
         {
             txtruta.Text = Application.StartupPath + @"\Xmls\MONEDA PAISES.xml";
-
         }
-
         private void bntnbuscar_Click(object sender, EventArgs e)
         {
             if (tablita != null)
@@ -66,9 +74,7 @@ namespace xml
                 ta.RowFilter = expresion;
                 DataRow[] FILITAS = tablita.Select(expresion);
                 if (FILITAS.Length > 0)
-                {
-                    dtgconten.DataSource = FILITAS.CopyToDataTable(); ;
-                }
+                    dtgconten.DataSource = FILITAS.CopyToDataTable();
                 else
                 {
                     expresion = $"NombreMoneda like '%{txtbuscar.Text}%'";
@@ -77,9 +83,7 @@ namespace xml
                     ta.RowFilter = expresion;
                     FILITAS = tablita.Select(expresion);
                     if (FILITAS.Length > 0)
-                    {
-                        dtgconten.DataSource = FILITAS.CopyToDataTable(); ;
-                    }
+                        dtgconten.DataSource = FILITAS.CopyToDataTable();
                     else
                         dtgconten.DataSource = tablita;
 
